@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.9;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -36,9 +36,10 @@ contract StakingERC721 is
     IERC20 public rewardsToken;
     uint256 public periodFinish;
     uint256 public rewardRate;
-    uint256 public rewardsDuration = 7 days;
+    uint256 public rewardsDuration;
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
+    // uint256 public rewardPerTokenStored;
 
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
@@ -234,9 +235,22 @@ contract StakingERC721 is
     function getRewardForDuration() external view override returns (uint256) {
         return rewardRate * rewardsDuration;
     }
+        // Function to withdraw staking fees, only accessible by administrators
+    function withdrawStakingFees(uint256 amount) external onlyOwner nonReentrant {
+        require(amount > 0, "Amount must be greater than 0");
+        require(amount <= stakingFee, "Amount exceeds staking fees");
+
+        stakingToken.safeTransferFrom(address(this), owner(), amount);
+    }
 
     function _lastTimeRewardApplicable() internal view returns (uint256) {
         return block.timestamp < periodFinish ? block.timestamp : periodFinish;
+    }
+
+        // Function to set the initial reward per token, only accessible by the owner
+    function setInitialRewardPerToken(uint256 initialRewardPerToken) external onlyOwner {
+        require(initialRewardPerToken >= 0, "Reward per token must be non-negative");
+        rewardPerTokenStored = initialRewardPerToken;
     }
 
     function _rewardPerToken() internal view returns (uint256) {
