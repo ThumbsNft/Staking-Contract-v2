@@ -23,3 +23,5 @@ contract DeployStaking  is Script{
     //     return Istaking;
     // }
 }
+
+// Contract_address=0x3aA6Cf60521A3C2F4f3e85Ed5549CDb36fe163C4
